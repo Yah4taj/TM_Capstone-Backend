@@ -1,4 +1,6 @@
 import express from "express";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import morgan from "morgan";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -8,7 +10,7 @@ import mongoose from "mongoose";
 // Routers
 import { healthRouter } from "./routes/health.js";
 import userRouter from "./routes/user.js";
-// import adminRouter from "./routes/adminRoutes.js";
+import adminRouter from "./routes/admin.js";
 // import studyGroupRouter from "./routes/studyGroupRoutes.js";
 
 dotenv.config();
@@ -28,6 +30,17 @@ const app = express();
 app.set("views", "./views");
 app.set("view engine", "pug");
 
+//Session Middleware  
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "supersecret",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+  })
+);
+
 // Middlewares
 app.use(express.static("./public"));
 app.use(express.json());
@@ -44,7 +57,7 @@ app.get("/", (req, res) => {
 // API Routes
 app.use("/api/health", healthRouter);
 app.use("/api/user", userRouter);
-// app.use("/api/admin", adminRouter);
+app.use("/api/admin", adminRouter);
 // app.use("/api/studygroups", studygroupRouter);
 
 

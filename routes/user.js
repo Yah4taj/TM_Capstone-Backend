@@ -1,5 +1,7 @@
 import express from 'express';
-import User from '../models/Users.js'; // Ensure correct path
+import User from '../models/User.js'; // Ensure correct path
+import { protect } from "../middleware/authMiddleware.js";
+import { registerUser, loginUser, logoutUser, getUserProfile } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -40,6 +42,14 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ message: e.message });
     }
 });
+router.get("/profile", protect, getUserProfile); // Protected route
+
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", logoutUser);
+router.get("/profile", getUserProfile);
+
+
 
 // PATCH - Update a user
 router.patch('/:id', async (req, res) => {
