@@ -1,9 +1,10 @@
-# Backend API Template
+# TM_Capstone-Backend
 
 
-## Instructions
+Overview:
+The Study Groups App is a full-stack web application that allows users to join, leave, and explore study groups, while admins manage users and study groups. Built using React (Vite) for the frontend, Express.js for the backend, and MongoDB for data storage, the app ensures seamless collaboration among learners.
 
-1. Clone the repo `git clone <repo-url> <new-project-name>`
-2. cd into your new project folder and run `npm i`
-3. Create a new `.env` file and add the `MONGODB_URI`
-4. Run the app with: `npm run dev`
+
+Backend Tech Stack:
+* Backend: Node.js, Express.js
+* Database: MongoDB (Mongoose)
