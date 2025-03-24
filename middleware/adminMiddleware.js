@@ -1,3 +1,5 @@
+//Ensures only admins can access certain routes
+
 
 export const adminMiddleware = (req, res, next) => {
   if (!req.user || req.user.role !== 'admin') {
@@ -18,7 +20,7 @@ export const adminOnly = (req, res, next) => {
       return res.status(403).json({ message: 'Access denied, admin role required' });
     }
   
-    // If the user is authenticated and has an admin role
+    
     next();
   };
   

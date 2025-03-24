@@ -5,6 +5,15 @@ import { registerUser, loginUser, logoutUser, getUserProfile } from "../controll
 
 const router = express.Router();
 
+
+router.get("/profile", protect, getUserProfile); // Protected route
+
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", logoutUser);
+
+router.get("/profile", getUserProfile);
+
 // POST - Create a new user
 router.post('/', async (req, res) => {
     try {
@@ -42,14 +51,6 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ message: e.message });
     }
 });
-router.get("/profile", protect, getUserProfile); // Protected route
-
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
-router.get("/profile", getUserProfile);
-
-
 
 // PATCH - Update a user
 router.patch('/:id', async (req, res) => {

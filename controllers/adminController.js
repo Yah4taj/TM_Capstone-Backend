@@ -1,6 +1,7 @@
-
+//For Admin specific actions
 
 import User from "../models/User.js";
+import StudyGroup from "../models/StudyGroup.js";
 
 //  Manage Users
 export const manageUsers = async (req, res) => {
@@ -46,38 +47,34 @@ export const manageMaterials = async (req, res) => {
   }
 };
 
-// Deactivate User (Admin only)
-export const deactivateUser = async (req, res) => {
-  const { id } = req.params;
+//Get all users (Admin only)
+export const getAllUsers = async (req, res) => {
   try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.isActive = false;
-    await user.save();
-    res.status(200).json({ message: "User account deactivated successfully", user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error deactivating user" });
+      const users = await User.find();
+      res.json(users);
+  } catch (e) {
+      console.error(e);
+      res.status(500).json({ message: e.message });
   }
 };
 
-// Reactivate User (Admin only)
-export const reactivateUser = async (req, res) => {
-  const { id } = req.params;
+// Ban a user (Admin only)
+export const banUser = async (req, res) => {
   try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.isActive = true;
-    await user.save();
-    res.status(200).json({ message: "User account reactivated successfully", user });
+    const user = await User.findByIdAndUpdate(req.params.id, { banned: true });
+    res.json({ message: `User ${user.username} has been banned` });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error reactivating user" });
+    res.status(500).json({ message: "Error banning user" });
+  }
+}
+
+//Delete any study group (Admin only)
+export const deleteGroup = async (req, res) => {
+  try {
+    await StudyGroup.findByIdAndDelete(req.params.id);
+    res.json({ message: "Study group deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting study group" });
   }
 };
+

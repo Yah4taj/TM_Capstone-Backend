@@ -1,9 +1,9 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
-// 🔹 Register User
+// Register User
 export const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;  // Ensure you pass role here for admins
+  const { name, email, password, role } = req.body;  //  pass role here for admins
 
   // Check if user already exists
   const userExists = await User.findOne({ email });
@@ -33,7 +33,7 @@ export const registerUser = async (req, res) => {
   res.status(201).json({ message: "User registered successfully", user: req.session.user });
 };
 
-// 🔹 Login User (Session-Based)
+// Login User (Session-Based)
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   
@@ -54,7 +54,7 @@ export const loginUser = async (req, res) => {
   res.json({ message: "Login successful", user: req.session.user });
 };
 
-// 🔹 Logout User
+//  Logout User
 export const logoutUser = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("connect.sid");  // Clear the session cookie
@@ -62,7 +62,7 @@ export const logoutUser = (req, res) => {
   });
 };
 
-// 🔹 Get User Profile (Check Session)
+// Get User Profile (Check Session)
 export const getUserProfile = async (req, res) => {
   // Ensure the user is authenticated
   if (!req.session.user) {

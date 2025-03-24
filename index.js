@@ -11,26 +11,30 @@ import mongoose from "mongoose";
 import { healthRouter } from "./routes/health.js";
 import userRouter from "./routes/user.js";
 import adminRouter from "./routes/admin.js";
-// import studyGroupRouter from "./routes/studyGroupRoutes.js";
+import studygroupRouter from "./routes/studygroup.js";
 
 dotenv.config();
-// console.log(process.env.MONGODB_URI);
-
-// Connect to MongoDB
-await mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((e) => console.error(e));
-
-const PORT = process.env.PORT || 4000;
 
 const app = express();
 
-// View Engine
-app.set("views", "./views");
-app.set("view engine", "pug");
+// Middleware - 
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cors()); // Enable CORS
+app.use(morgan("dev")); // Logging requests
+app.use(helmet()); // Security headers
+app.use(express.static("./public")); // Serve static files
 
-//Session Middleware  
+// Connect to MongoDB BEFORE starting the server
+mongoose
+  .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((e) => {
+    console.error("MongoDB Connection Error:", e);
+    process.exit(1); // Stop the app if database connection fails
+  });
+
+// Session Middleware (AFTER DB connection)
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecret",
@@ -41,30 +45,40 @@ app.use(
   })
 );
 
-// Middlewares
-app.use(express.static("./public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan("dev"));
-app.use(helmet());
-app.use(cors());
+// View Engine Setup (AFTER Middleware)
+app.set("views", "./views");
+app.set("view engine", "pug");
 
-// Routes
+// API Routes (AFTER Middleware & DB Connection)
 app.get("/", (req, res) => {
   res.render("index");
 });
 
-// API Routes
 app.use("/api/health", healthRouter);
 app.use("/api/user", userRouter);
 app.use("/api/admin", adminRouter);
-// app.use("/api/studygroups", studygroupRouter);
+app.use("/api/studygroup",studygroupRouter);
 
-
-// Global error handling
+// Global Error Handling (LAST Middleware)
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send("Seems like we messed up somewhere...");
+  console.error(err.stack);
+  res.status(500).json({ error: "Internal Server Error", message: err.message });
 });
 
+// Start Server AFTER everything is set up
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Internal Server Error", message: err.message });
+});
+
+//Proper server shutdown in the event of Ctrl C or kill
+
+process.on("SIGINT", async () => {
+  await mongoose.connection.close();
+  console.log("MongoDB connection closed due to app termination");
+  process.exit(0);
+});
+
