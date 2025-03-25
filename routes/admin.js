@@ -1,7 +1,7 @@
 import express from 'express';
 import Admin from '../models/Admin.js';
-import { protect } from '../middleware/authMiddleware.js'; // Protect middleware 
-import { adminOnly } from '../middleware/adminMiddleware.js'; // Middleware to check for admin role
+// import { protect } from '../middleware/authMiddleware.js'; // Protect middleware 
+// import { adminOnly } from '../middleware/adminMiddleware.js'; // Middleware to check for admin role
 
 // Import controller functions for managing users, reports, etc.
 import { manageUsers, viewReports, modifyData, manageMaterials } from '../controllers/adminController.js';
@@ -10,10 +10,10 @@ const router = express.Router();
 
 
 // Admin-specific routes
-router.get('/manageUsers', protect, adminOnly, manageUsers);
-router.get('/viewReports', protect, adminOnly, viewReports);
-router.get('/modifyData', protect, adminOnly, modifyData);
-router.get('/manageMaterials', protect, adminOnly, manageMaterials);
+router.get('/manageUsers',  manageUsers);
+router.get('/viewReports',  viewReports);
+router.get('/modifyData',  modifyData);
+router.get('/manageMaterials', manageMaterials);
 
 
 // POST - Create a new admin
@@ -29,9 +29,9 @@ router.post('/', async (req, res) => {
 });
  //Get a specific Admin by name
 
- router.get('/name', async (req, res) => {
+ router.get('/:id', async (req, res) => {
     try {
-        const admin = await Admin.findByName(req.params.id);
+        const admin = await Admin.findById(req.params.id);
         if (!admin) {
             return res.status(404).json({ error: 'Admin not found' });
         }
@@ -71,7 +71,7 @@ router.delete('/', async (req, res) => {
 
 //Get all Study Groups 
 
-router.get('/studygroups', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const studygroups= await StudyGroups.find().populate('studygroups', 'name,description, subject'); 
 
@@ -90,7 +90,7 @@ router.get('/studygroups', async (req, res) => {
 //Modify a study group(AdminOnly)
 
 // router.patch('/',authMiddleware, adminMiddleware, modifyStudyGroup);
-router.patch('/name', async (req, res) => {
+router.patch('/:id', async (req, res) => {
         try {
             const updatedStudyGroup = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
             if (!updatedStudyGroup) {
@@ -107,9 +107,9 @@ router.patch('/name', async (req, res) => {
 
 // router.delete('/name', authMiddleware, adminMiddleware, deleteStudyGroup);
 
-router.delete('/name', protect,adminOnly); //Only accessible by existing admin
+ //Only accessible by existing admin
 
-router.delete('/name', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const deletedStudyGroup = await User.findByNameAndDelete(req.params.id);
         if (!deletedStudyGroup) {
@@ -124,4 +124,3 @@ router.delete('/name', async (req, res) => {
 
 
 export default router;
-

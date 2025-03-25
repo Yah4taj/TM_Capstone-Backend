@@ -1,60 +1,80 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
+
 // Register User
 export const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;  //  pass role here for admins
+  const { name, email, password, role } = req.body; // pass role here for admins
+
+  
 
   // Check if user already exists
-  const userExists = await User.findOne({ email });
-  if (userExists) return res.status(400).json({ message: "User already exists" });
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create new user with role (default to 'user' if not specified)
-  const user = new User({
-    name,
-    email,
-    password: hashedPassword,
-    role: role || 'user'  // Default role is 'user', but can be 'admin' if provided
-  });
+    // Create new user with role (default to 'user' if not specified)
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'user'  // Default role is 'user', but can be 'admin' if provided
+    });
 
-  await user.save();
+    await user.save();
 
-  // Store user information in session (including role)
-  req.session.user = { 
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role  // Store role for role-based access control
-  };
+    // Store user information in session (including role)
+    req.session.user = { 
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role  // Store role for role-based access control
+    };
 
-  res.status(201).json({ message: "User registered successfully", user: req.session.user });
+    res.status(201).json({ message: "User registered successfully", user: req.session.user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error registering user" });
+  }
 };
 
 // Login User (Session-Based)
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  
-  // Find user by email
-  const user = await User.findOne({ email });
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: "Invalid email or password" });
+
+  // Ensure both email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
-  // Store user information in session (including role)
-  req.session.user = {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role  // Store role in session
-  };
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
-  res.json({ message: "Login successful", user: req.session.user });
+    // Store user information in session (including role)
+    req.session.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role  // Store role in session
+    };
+
+    res.json({ message: "Login successful", user: req.session.user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error logging in" });
+  }
 };
 
-//  Logout User
+// Logout User
 export const logoutUser = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("connect.sid");  // Clear the session cookie

@@ -1,6 +1,6 @@
 import express from "express";
-import session from "express-session";
-import MongoStore from "connect-mongo";
+// import session from "express-session";
+// import MongoStore from "connect-mongo";
 import morgan from "morgan";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -35,15 +35,15 @@ mongoose
   });
 
 // Session Middleware (AFTER DB connection)
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "supersecret",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-    cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || "supersecret",
+//     resave: false,
+//     saveUninitialized: false,
+//     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+//     cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+//   })
+// );
 
 // View Engine Setup (AFTER Middleware)
 app.set("views", "./views");
@@ -81,4 +81,3 @@ process.on("SIGINT", async () => {
   console.log("MongoDB connection closed due to app termination");
   process.exit(0);
 });
-

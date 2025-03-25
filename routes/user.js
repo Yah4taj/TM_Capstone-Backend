@@ -1,18 +1,17 @@
-import express from 'express';
-import User from '../models/User.js'; // Ensure correct path
-import { protect } from "../middleware/authMiddleware.js";
-import { registerUser, loginUser, logoutUser, getUserProfile } from "../controllers/userController.js";
+import express from "express";
+import User from "../models/User.js"; // Ensure correct path
+import { hashPassword } from "../middleware/authMiddleware.js"; //removed isAuthenticated, isAdmin
+// import { registerUser, loginUser, logoutUser, getUserProfile } from "../controllers/userController.js";
 
 const router = express.Router();
 
+// Authentication routes
+// router.post("/register", registerUser);
+// router.post("/login", loginUser);
+// router.post("/logout", logoutUser);
 
-router.get("/profile", protect, getUserProfile); // Protected route
-
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
-
-router.get("/profile", getUserProfile);
+// User profile (Protected)
+// router.get("/profile", getUserProfile);   //removed isAuthenticated for testing
 
 // POST - Create a new user
 router.post('/', async (req, res) => {
@@ -79,7 +78,4 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: e.message });
     }
 });
-
-
-
 export default router;

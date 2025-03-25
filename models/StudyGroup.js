@@ -48,4 +48,3 @@ const studyGroupSchema = new mongoose.Schema({
   const StudyGroup = mongoose.model("Study Group", studyGroupSchema);
 
 export default StudyGroup;
-
