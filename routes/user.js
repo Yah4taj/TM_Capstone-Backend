@@ -1,17 +1,17 @@
 import express from "express";
 import User from "../models/User.js"; // Ensure correct path
 import { hashPassword } from "../middleware/authMiddleware.js"; //removed isAuthenticated, isAdmin
-// import { registerUser, loginUser, logoutUser, getUserProfile } from "../controllers/userController.js";
+import { registerUser, loginUser, logoutUser, getUserProfile } from "../controllers/userController.js";
 
 const router = express.Router();
 
 // Authentication routes
-// router.post("/register", registerUser);
-// router.post("/login", loginUser);
-// router.post("/logout", logoutUser);
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", logoutUser);
 
 // User profile (Protected)
-// router.get("/profile", getUserProfile);   //removed isAuthenticated for testing
+router.get("/profile", getUserProfile);   //removed isAuthenticated for testing
 
 // POST - Create a new user
 router.post('/', async (req, res) => {
